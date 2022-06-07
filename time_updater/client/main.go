@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net"
@@ -15,13 +14,18 @@ func main() {
 	}
 	defer conn.Close()
 
-	buf := make([]byte, 256) // создаем буфер
+	buf := make([]byte, 1) // создаем буфер
 	for {
 		_, err = conn.Read(buf)
 		if err == io.EOF {
 			break
 		}
-		io.WriteString(os.Stdout, fmt.Sprintf("Custom output! %s", string(buf)))
+		// io.WriteString(os.Stdout, fmt.Sprintf("Custom output! %s", string(buf)))
+		// buf = buf[:0]
+
+		//меняем использование буфера на копирование содержимого соединения, чтобы избежать "хвостов" от предыдущего сообщения.
+		// использование буфера на 1 символ оставляем как проверку открытого соединения
+		io.Copy(os.Stdout, conn)
 		// выводим измененное сообщение сервера в консоль
 	}
 }
