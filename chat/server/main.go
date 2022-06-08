@@ -56,11 +56,17 @@ func handleConn(conn net.Conn) {
 	go clientWriter(conn, ch)
 
 	who := conn.RemoteAddr().String()
+	fmt.Fprintln(conn, "Your address is "+who+".\nEnter your nickname and press enter")
+	input := bufio.NewScanner(conn)
+	for input.Scan() {
+		who = input.Text()
+		break
+	}
+
 	ch <- "You are " + who
 	messages <- who + " has arrived"
 	entering <- ch
 
-	input := bufio.NewScanner(conn)
 	for input.Scan() {
 		messages <- who + ": " + input.Text()
 	}
