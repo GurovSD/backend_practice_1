@@ -30,12 +30,13 @@ components:
           format: int64 # в виде целочисленного значения минимальной размерности валюты (например, центы или копейки)
         image_link:
           type: string
+    
+  securitySchemes:
+    api_key:
+      type: "apiKey"
+      name: "api_key"
+      in: "header"
 
-securityDefinitions:
-  api_key:
-    type: "apiKey"
-    name: "api_key"
-    in: "header"
     
 paths:
   /user/login:
@@ -48,8 +49,15 @@ paths:
         required: true
         schema:
           type: string
+      - name: password
+        in: query
+        description: The password for login in clear text
+        required: true
+        schema:
+          type: string
+
       responses:
-        "200":
+        200:
           description: successful operation
           headers:
             X-Expires-After:
@@ -61,7 +69,7 @@ paths:
             application/json:
               schema:
                 type: string
-        "400":
+        400:
           description: Invalid username/password supplied
           content: {}
   /user/logout:
@@ -76,8 +84,8 @@ paths:
     post:
       summary: "Add a new item to the store"
       operationId: "CreateItem"
-      description: "Item object that needs to be added to the store"
       requestBody:
+        description: "Item object that needs to be added to the store"
         required: true
         content:
           "application/json":
@@ -88,14 +96,44 @@ paths:
         "405":
           description: "Invalid input"
       security:
-      - api_key: []
+        - api_key: []
+    get:
+      summary: Lists Items with filters
+      operationId: ListItems
+      parameters:
+      - name: price_min
+        in: query
+        description: Lower price limit
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: price_max
+        in: query
+        description: Upper price limit
+        required: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+        400:
+          description: Invalid price range
+          content: {}
       
   /items/upload_image:
     post:
       summary: "uploads an image"
       operationId: "uploadFile"
-      description: "Additional data to pass to server"
       requestBody:
+        description: "Additional data to pass to server"
         required: true
         content:
           multipart/form-data:
@@ -138,7 +176,7 @@ paths:
           description: Invalid ID supplied
           content: {}
     put:
-      summary: Updates a item in the store with form data
+      summary: Updates an item in the store with form data
       operationId: UpdateItem
       parameters:
       - name: itemId
@@ -185,4 +223,5 @@ paths:
           content: {}
       security:
       - api_key: []
+
 
