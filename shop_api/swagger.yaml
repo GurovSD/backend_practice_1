@@ -30,6 +30,21 @@ components:
           format: int64 # в виде целочисленного значения минимальной размерности валюты (например, центы или копейки)
         image_link:
           type: string
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        clientId:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+        itemsOrdered:
+          type: array
+          items:
+            $ref: "#/components/schemas/Item"
     
   securitySchemes:
     api_key:
@@ -223,5 +238,74 @@ paths:
           content: {}
       security:
       - api_key: []
+      
+  /orders:
+    post:
+      summary: Create a client order
+      operationId: CreateOrder
+      requestBody:
+        description: "Item object that needs to be added to the store"
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Item'
+
+      responses:
+        "201":
+          description: "order created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+      security:
+        - api_key: []
+        
+  /orders/{orderId}:
+    get:
+      summary: Get order by id
+      operationId: GetOrder
+      parameters:
+      - name: orderId
+        in: path
+        description: Order id to receive
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        400:
+          description: Invalid ID supplied
+          content: {}
+                
+    delete:
+      summary: Deletes order with specified orderId
+      operationId: DeleteOrder
+      parameters:
+      - name: orderId
+        in: path
+        description: Order id to delete
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: orders successfully deleted
+          content: {}
+        400:
+          description: Invalid ID supplied
+          content: {}
+      security:
+      - api_key: []
+      
 
 
